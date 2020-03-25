@@ -1,0 +1,49 @@
+{
+  "name": "quasar-electron-file-browser",
+  "version": "0.0.1",
+  "description": "A Quasar Framework app",
+  "productName": "Quasar App",
+  "cordovaId": "org.cordova.quasar.app",
+  "capacitorId": "",
+  "author": "lsshawn <coffee.or.tea88@gmail.com>",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue src",
+    "lint-fix": "eslint --ext .js,.vue src --fix",
+    "dev": "quasar dev -m electron -t mat",
+    "build": "quasar build -m electron -t mat",
+    "build-linux": "quasar build -m electron linux -t mat -b builder",
+    "build-win32": "quasar build -m electron win32 -t mat -b builder",
+    "build-mac": "quasar build -m electron mac -t mat -b builder",
+    "electron-toolkit": "electron ./node_modules/electron-toolkit",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.0.0",
+    "axios": "^0.18.1",
+    "quasar": "^1.0.0"
+  },
+  "devDependencies": {
+    "@quasar/app": "^1.0.0",
+    "babel-eslint": "^10.0.1",
+    "devtron": "^1.4.0",
+    "electron": "^8.2.0",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-vue": "^6.1.2"
+  },
+  "engines": {
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  },
+  "browserslist": [
+    "last 1 version, not dead, ie >= 11"
+  ],
+  "resolutions": {
+    "@babel/parser": "7.7.5"
+  }
+}
