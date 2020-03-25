@@ -1,10 +1,12 @@
 <template>
   <div>
+    Selected: {{ folder }}
     <q-tree
       ref="folders"
       @lazy-load="lazyLoad"
       :nodes="rootDir"
       node-key="nodeKey"
+      :selected.sync="selected"
     />
   </div>
 </template>
@@ -32,6 +34,22 @@ export default {
       selected: null,
       isWin: process.platform === "win32"
     };
+  },
+  mounted() {
+    this.selected = this.folder;
+  },
+  watch: {
+    /// this comes from the parent
+    folder: {
+      handler() {
+        this.selected = this.folder;
+      }
+    },
+    selected: {
+      handler() {
+        this.$emit("selected", this.selected);
+      }
+    }
   }
 };
 </script>

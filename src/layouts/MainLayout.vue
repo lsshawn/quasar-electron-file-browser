@@ -23,6 +23,7 @@
         :rootDir="rootDir"
         :folder.sync="selectedFolder"
         :lazyLoad="onLazyLoad"
+        @selected="onSelectedFolder"
       />
     </q-drawer>
 
@@ -49,7 +50,7 @@ export default {
 
   data() {
     return {
-      leftDrawerOpen: false,
+      leftDrawerOpen: true,
       rootDir: [],
       selectedFolder: null,
       drive: process.platform === "win32" ? "C:" : ""
@@ -75,6 +76,9 @@ export default {
       }
 
       return folders;
+    },
+    onSelectedFolder(absolutePath) {
+      this.setSelectedFolder(absolutePath);
     },
     setSelectedFolder(folder) {
       this.selectedFolder = folder;
@@ -139,6 +143,16 @@ export default {
       } catch (err) {
         // usually access error
         console.error(`Error: ${err}`);
+      }
+    }
+  },
+  watch: {
+    selectedFolder: {
+      handler(newFolder, oldFolder) {
+        // if user deselect a folder, set newFolderas root folder
+        if (!newFolder) {
+          newFolder = this.drive + path.sep;
+        }
       }
     }
   },
