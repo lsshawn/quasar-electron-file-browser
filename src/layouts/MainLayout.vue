@@ -40,6 +40,7 @@ import walkFolders from "../utils/walkFolders";
 const path = require("path");
 const fs = require("fs");
 const mime = require("mime-types");
+const { ipcRenderer } = require("electron");
 
 export default {
   name: "MainLayout",
@@ -51,9 +52,10 @@ export default {
   data() {
     return {
       leftDrawerOpen: true,
-      rootDir: [],
       selectedFolder: null,
-      drive: process.platform === "win32" ? "C:" : ""
+      drive: process.platform === "win32" ? "C:" : "",
+      rootDir: [],
+      contents: []
     };
   },
   methods: {
@@ -144,6 +146,41 @@ export default {
         // usually access error
         console.error(`Error: ${err}`);
       }
+    },
+    // if there's new file or folder added or removed, show it.
+    folderWatcherHandler(newFolder, oldFolder) {
+      if (oldFolder && this.watcher) {
+        this.watcher.close();
+      }
+      if (newFolder) {
+        // let backend know to statically serve files from this folder
+        ipcRenderer.send("folder", newFolder);
+
+        this.watcher = chokidar.watch(newFolder, {
+          depth: 0,
+          ignorePermissionErrors: true
+        });
+        if (this.watcher) {
+          this.watcher.on("ready", () => {
+            // initial scan done
+            // watch for additions
+            this.watcher.on("raw", (event, path, details) => {
+              this.$root.$emit("rescan-current-folder");
+            });
+          });
+          this.watcher.on("error", error => {
+            // initial scan done
+            console.error(error);
+          });
+        }
+      }
+    },
+    clearAllContentItems() {
+      this.contents.splice(0, this.contents.length);
+    },
+    rescanCurrentFolder() {
+      this.clearAllContentItems();
+      this.contents.push(...this.getFoldersContents(this.selectedFolder));
     }
   },
   watch: {
@@ -153,6 +190,15 @@ export default {
         if (!newFolder) {
           newFolder = this.drive + path.sep;
         }
+
+        // tell backend to serve files from this folder
+        ipcRenderer.send("folder", newFolder);
+
+        // folder watcher handler
+        this.folderWatcherHandler(newFolder, oldFolder);
+
+        this.clearAllContentItems();
+        this.contents.push(...this.getFoldersContents(newFolder));
       }
     }
   },
