@@ -115,7 +115,32 @@ export default {
         }
       };
     },
-    onLazyLoad: () => {}
+    // called by folderTree component
+    onLazyLoad({ node, key, done, fail }) {
+      this.loadChildren(node, key);
+      done();
+    },
+    loadChildren(node, key) {
+      try {
+        if (node.children.length) {
+          node.children.splice(0, node.children.length);
+        }
+
+        for (const fileInfo of walkFolders(key, 0)) {
+          // only load folders
+          if (!fileInfo.isDir) {
+            continue;
+          }
+          // create new node
+          const n = this.createNode(fileInfo);
+          node.children.push(n);
+        }
+        return true;
+      } catch (err) {
+        // usually access error
+        console.error(`Error: ${err}`);
+      }
+    }
   },
   created() {
     if (process.platform === "win32") {
