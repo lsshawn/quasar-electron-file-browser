@@ -1,26 +1,7 @@
-# Quasar App (quasar-electron-file-browser)
+Source: https://medium.com/quasar-framework/building-an-electron-file-explorer-with-quasar-and-vue-7bf94f1bbf6
 
-A Quasar Framework app
+# Things this app doesn't do
 
-## Install the dependencies
-```bash
-npm install
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
-
-### Lint the files
-```bash
-npm run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+1. Double-clicking a file won’t open it. Although this would be nice, this is not one of my goals at this time.
+2. The User will be unable to create, delete or modify files. This will be a read-only app only to provide proof-of-concept abilities only.
+3. The User will be unable to get information (properties) about a selected file.

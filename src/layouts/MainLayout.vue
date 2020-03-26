@@ -10,6 +10,16 @@
           aria-label="Menu"
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
+        <q-toolbar-title>File Picker</q-toolbar-title>
+        <q-btn
+          flat
+          dense
+          round
+          @click="toggleListType"
+          :icon="listType === 'grid' ? 'format_list_bulleted' : 'border_all'"
+        >
+          <q-tooltip>toggle between grid and list mode</q-tooltip>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -28,25 +38,34 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <folder-contents
+        :contents="contents"
+        :listType="listType"
+        @click="onClicked"
+        @dblClick="onDblClicked"
+      />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
 import FolderTree from "components/FolderTree";
+import FolderContents from "components/FolderContents";
 
 import walkFolders from "../utils/walkFolders";
 const path = require("path");
 const fs = require("fs");
 const mime = require("mime-types");
 const { ipcRenderer } = require("electron");
+// file watcher
+const chokidar = require("chokidar");
 
 export default {
   name: "MainLayout",
 
   components: {
-    FolderTree
+    FolderTree,
+    FolderContents
   },
 
   data() {
@@ -55,7 +74,8 @@ export default {
       selectedFolder: null,
       drive: process.platform === "win32" ? "C:" : "",
       rootDir: [],
-      contents: []
+      contents: [],
+      listType: "grid" // ['grid', 'list']
     };
   },
   methods: {
@@ -180,13 +200,53 @@ export default {
     },
     rescanCurrentFolder() {
       this.clearAllContentItems();
-      this.contents.push(...this.getFoldersContents(this.selectedFolder));
+      this.contents.push(...this.getFolderContents(this.selectedFolder));
+    },
+    getFolderContents(folder) {
+      let contents = [];
+
+      // check incoming arg
+      if (!folder || typeof folder !== "string") {
+        return contents;
+      }
+
+      for (const fileInfo of walkFolders(folder, 0)) {
+        // all files and folders
+        if ("error" in fileInfo) {
+          console.error(`Error: ${fileInfo.rootDir} - ${fileInfo.error}`);
+          continue;
+        }
+        const node = this.createNode(fileInfo);
+        contents.push(node);
+      }
+
+      return contents;
+    },
+    toggleListType() {
+      this.listType = this.listType === "grid" ? "list" : "grid";
+    },
+    onClicked(node) {
+      // on single-clicks we don't do anything here
+      // if we wanted to drill-down into folders, we
+      // can call this.onDblClicked function.
+    },
+
+    onDblClicked(node) {
+      // This causes a drill-down if it's a folder
+      if (node.data.isDir) {
+        this.setSelectedFolder(node.nodeKey);
+      } else {
+        this.onFileSelected(node);
+      }
+    },
+    onFileSelected(node) {
+      alert(`selected file: ${node.label}`);
     }
   },
   watch: {
     selectedFolder: {
       handler(newFolder, oldFolder) {
-        // if user deselect a folder, set newFolderas root folder
+        // if user deselect a folder, set newFolder as root folder
         if (!newFolder) {
           newFolder = this.drive + path.sep;
         }
@@ -198,7 +258,7 @@ export default {
         this.folderWatcherHandler(newFolder, oldFolder);
 
         this.clearAllContentItems();
-        this.contents.push(...this.getFoldersContents(newFolder));
+        this.contents.push(...this.getFolderContents(newFolder));
       }
     }
   },

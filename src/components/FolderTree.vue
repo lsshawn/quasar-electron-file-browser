@@ -1,6 +1,6 @@
 <template>
   <div>
-    Selected: {{ folder }}
+    <div class="text-weight-bold">{{ isWin ? "Drives" : "File System" }}</div>
     <!-- ref for accessing this component with this.$refs.folders -->
     <q-tree
       ref="folders"
@@ -51,7 +51,7 @@ export default {
     this.$root.$off("expand-tree", this.expandTree);
   },
   watch: {
-    /// this comes from the parent
+    // this comes from the parent
     folder: {
       handler() {
         this.selected = this.folder;
