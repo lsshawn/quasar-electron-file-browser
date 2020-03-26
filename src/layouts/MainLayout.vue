@@ -10,7 +10,12 @@
           aria-label="Menu"
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
-        <q-toolbar-title>File Picker</q-toolbar-title>
+        <q-toolbar-title>
+          <folder-breadcrumbs
+            :absolutePath="selectedFolder"
+            @selected="onSelectedFolder"
+          />
+        </q-toolbar-title>
         <q-btn
           flat
           dense
@@ -51,6 +56,7 @@
 <script>
 import FolderTree from "components/FolderTree";
 import FolderContents from "components/FolderContents";
+import FolderBreadcrumbs from "components/FolderBreadcrumbs";
 
 import walkFolders from "../utils/walkFolders";
 const path = require("path");
@@ -65,7 +71,8 @@ export default {
 
   components: {
     FolderTree,
-    FolderContents
+    FolderContents,
+    FolderBreadcrumbs
   },
 
   data() {
